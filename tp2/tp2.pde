@@ -1,154 +1,227 @@
+// hecho por: Mica Villaverde
+
 PImage img1;
 PImage img2;
 PImage img3;
 PImage img4;
-
-PFont fuente;
-
+PImage img5;
 int pantalla = 0;
+int tiempoInicio;
+PFont fuente;
+float textoPosY;
+int alphaRect;
+boolean inicio = true;
+boolean fin = false;
 
-int tiempo;
+// titulos de las pantallas
+String titulo1 = "¿Que es Naruto?";
+String titulo2 = "El personaje principal";
+String titulo3 = "El mundo ninja";
+String titulo4 = "La historia";
+String titulo5 = "Los personajes";
 
-float textoX = -500;
-
-boolean finalPantalla = false;
+// textos 
+String texto1 = "Naruto es un manga y anime creado por Masashi Kishimoto.\nFue publicado entre 1999 y 2014. Tiene mas de 700 capitulos\ny es uno de los animes mas famosos del mundo.";
+String texto2 = "Naruto Uzumaki es un joven ninja de la aldea de la Hoja.\nTiene dentro suyo al Zorro de las Nueve Colas. Su sueno\nes convertirse en Hokage, el lider de su aldea.";
+String texto3 = "La historia ocurre en un mundo donde existen aldeas ninja.\nLos ninjas usan el chakra para hacer tecnicas especiales\nllamadas jutsu. Hay 5 grandes naciones con sus aldeas.";
+String texto4 = "Naruto crece solo porque todos lo rechazaban por el zorro.\nAprende a luchar con sus amigos Sasuke y Sakura.\nJuntos enfrentan enemigos cada vez mas peligrosos.";
+String texto5 = "Los personajes mas importantes son: Naruto, Sasuke, Sakura,\nKakashi (su sensei), Jiraiya, Tsunade, Minato (el padre\nde Naruto) y el villano principal Madara Uchiha.";
 
 void setup() {
-
   size(640, 480);
+  img1 = loadImage("NARUTO1.jpg");
+  img2 = loadImage("NARUTO2.jpg");
+  img3 = loadImage("NARUTO3.jpg");
+  img4 = loadImage("NARUTO4.jpg");
+  img5 = loadImage("NARUTO4.jpg");
 
-  // cargar imagenes
-  img1 = loadImage("naruto1.jpg");
-  img2 = loadImage("naruto2.jpg");
-  img3 = loadImage("naruto3.jpg");
-  img4 = loadImage("naruto4.jpg");
-
-  // cargar fuente
-  fuente = loadFont("ArchieroBold-Regular-32.vlw");
-
-  tiempo = millis();
+  fuente = createFont("Arial", 16);
+  textFont(fuente);
+  
+  textoPosY = 480;
+  
+  alphaRect = 0;
+  
+  tiempoInicio = millis();
 }
 
 void draw() {
+  
+  if (inicio == true) {
+    mostrarInicio();
+  } else if (fin == true) {
+    mostrarFin();
+  } else {
+    mostrarPantalla();
+  }
+  
+}
 
-  background(0);
+void mostrarInicio() {
+  background(20, 20, 20);
+  
+  // titulo
+  fill(255, 165, 0);
+  textSize(42);
+  textAlign(CENTER, CENTER);
+  text("NARUTO", width/2, 150);
+  
+  
+  // dibujo el boton de inicio
+  fill(255, 140, 0);
+  rect(220, 300, 200, 55);
+  
+  fill(0);
+  textSize(20);
+  text("INICIAR", width/2, 327);
+}
 
-  // cambiar pantalla automaticamente
-  if (millis() - tiempo > 7000) {
+void mostrarPantalla() {
 
+  int tiempoPasado = millis() - tiempoInicio;
+ 
+  if (tiempoPasado >= 6000) {
     pantalla = pantalla + 1;
-
-    tiempo = millis();
-
-    textoX = -500;
+    tiempoInicio = millis();
+    textoPosY = 480; 
+  
+    if (pantalla >= 5) {
+      fin = true;
+    }
   }
-
-  // pantalla 1
+  
   if (pantalla == 0) {
+    image(img1, 0, 0, 640, 480);
+  } else if (pantalla == 1) {
+    image(img2, 0, 0, 640, 480);
+  } else if (pantalla == 2) {
+    image(img3, 0, 0, 640, 480);
+  } else if (pantalla == 3) {
+    image(img4, 0, 0, 640, 480);
+  } else if (pantalla == 4) {
+    image(img5, 0, 0, 640, 480);
+  }
+  
 
-    image(img1, 0, 0, width, height);
-
-    mostrarTexto("Naruto Uzumaki es un joven ninja de Konoha.");
+  fill(0, 0, 0, 190);
+  noStroke();
+  rect(0, 290, 640, 190);
+  
+  if (textoPosY > 320) {
+    textoPosY = textoPosY - 4;
   }
 
-  // pantalla 2
-  if (pantalla == 1) {
+  fill(255, 165, 0);
+  textSize(20);
+  textAlign(LEFT, TOP);
+  text(getTitulo(), 20, textoPosY - 25);
+  
 
-    image(img2, 0, 0, width, height);
+  fill(255, 255, 255);
+  textSize(13);
+  text(getTexto(), 20, textoPosY + 5);
+  
+  
+  fill(255, 255, 255, 180);
+  textSize(13);
+  textAlign(RIGHT, TOP);
+  text((pantalla + 1) + " / 5", 625, 10);
+ 
+  float porcentaje = tiempoPasado / 6000.0;
+  fill(255, 165, 0, 200);
+  noStroke();
+  rect(0, 476, 640 * porcentaje, 4);
+  
+}
 
-    mostrarTexto("Su mayor sueño es convertirse en Hokage.");
+void mostrarFin() {
+  background(20, 20, 20);
+  
+  fill(255, 165, 0);
+  textSize(32);
+  textAlign(CENTER, CENTER);
+  text("¡Fin de la presentacion!", width/2, 130);
+   
+  //los temas que vimos
+  fill(200, 200, 200);
+  textSize(14);
+  text("Pantalla 1: ¿Que es Naruto?", width/2, 235);
+  text("Pantalla 2: El personaje principal", width/2, 258);
+  text("Pantalla 3: El mundo ninja", width/2, 281);
+  text("Pantalla 4: La historia", width/2, 304);
+  text("Pantalla 5: Los personajes", width/2, 327);
+  
+  // boton de reiniciar
+  fill(255, 140, 0);
+  rect(220, 370, 200, 55);
+  
+  fill(0);
+  textSize(18);
+  text("REINICIAR", width/2, 397);
+}
+
+String getTitulo() {
+  if (pantalla == 0) {
+    return titulo1;
+  } else if (pantalla == 1) {
+    return titulo2;
+  } else if (pantalla == 2) {
+    return titulo3;
+  } else if (pantalla == 3) {
+    return titulo4;
+  } else {
+    return titulo5;
   }
+}
 
-  // pantalla 3
-  if (pantalla == 2) {
+String getTexto() {
+  if (pantalla == 0) {
+    return texto1;
+  } else if (pantalla == 1) {
+    return texto2;
+  } else if (pantalla == 2) {
+    return texto3;
+  } else if (pantalla == 3) {
+    return texto4;
+  } else {
+    return texto5;
+  }
+}
 
-    image(img3, 0, 0, width, height);
-
-    mostrarTexto("Forma parte del equipo 7 junto a Sasuke y Sakura.");
-
-    // OR
-    if (mousePressed || keyPressed) {
-
-      fill(255, 150, 0);
-
-      ellipse(560, 70, 40, 40);
+void mouseClicked() {
+  if (inicio == true) {
+    if (mouseX >= 220 && mouseX <= 420 && mouseY >= 300 && mouseY <= 355) {
+      inicio = false;
+      tiempoInicio = millis();
     }
   }
 
-  // pantalla 4
-  if (pantalla == 3) {
-
-    image(img4, 0, 0, width, height);
-
-    mostrarTexto("Con entrenamiento Naruto aprende tecnicas mas fuertes.");
+  if (fin == true) {
+    if (mouseX >= 220 && mouseX <= 420 && mouseY >= 370 && mouseY <= 425) {
+      // reinicio todo
+      pantalla = 0;
+      fin = false;
+      inicio = true;
+      textoPosY = 480;
+    }
   }
-
-  // pantalla final
-  if (pantalla >= 4) {
-
-    background(30);
-
-    fill(255);
-
-    textAlign(CENTER);
-
-    textFont(fuente);
-
-    textSize(35);
-
-    text("Fin de la presentacion", width/2, 170);
-
-    fill(120);
-
-    rect(220, 250, 200, 60);
-
-    fill(255);
-
-    textSize(25);
-
-    text("Reiniciar", width/2, 290);
-
-    finalPantalla = true;
-  }
+  
 }
 
-// funcion para mostrar texto
-void mostrarTexto(String texto) {
-
-  fill(0, 180);
-
-  rect(0, 370, width, 110);
-
-  fill(255);
-
-  textFont(fuente);
-
-  textSize(22);
-
-  // mover texto
-  textoX = textoX + 1;
-
-  // frenar texto
-  if (textoX > 20) {
-
-    textoX = 20;
-  }
-
-  text(texto, textoX, 430);
-}
-
-// reiniciar presentacion
 void mousePressed() {
-
-  // AND
-  if (finalPantalla == true && mouseX > 220 && mouseX < 420 && mouseY > 250 && mouseY < 310) {
-
-    pantalla = 0;
-
-    tiempo = millis();
-
-    textoX = -500;
-
-    finalPantalla = false;
+  
+  if (inicio == true) {
+    if (mouseX >= 220 && mouseX <= 420 && mouseY >= 300 && mouseY <= 355) {
+      inicio = false;
+      tiempoInicio = millis();
+    }
   }
+  
+  if (fin == true && mouseX >= 220 && mouseX <= 420 && mouseY >= 370 && mouseY <= 425) {
+    pantalla = 0;
+    fin = false;
+    inicio = true;
+    textoPosY = 480;
+  }
+  
 }
