@@ -1,84 +1,130 @@
-// Enlace al video explicativo en YouTube:
+//https://youtu.be/b516slm2UPQ
 
+PImage miImagen;
 
-int cantidadColumnas = 14;
-int cantidadFilas = 14;
-float tamañoCelda = 28;
-PImage imagen;
+int filas = 6;
+int columnas = 6;
+int capasOriginal = 5;// cantidad de cuadrados por celda 
+float rotacionGlobalOriginal = 0;
+boolean modoColorOriginal = false;
+int capas;
+float rotacionGlobal;
+boolean modoColor;
 
-boolean modoColorActivado = false;
-
-float radioInterno = 0.95;
-float radioExterno = 1.0;
-
-void setup(){
+void setup() {
   size(800, 400);
-  imagen = loadImage("F_37.jpg");
-  imageMode(CORNER);
-  smooth();
+  miImagen = loadImage("10.jpeg");
+  reiniciar();
 }
 
-void draw(){
+void draw() {
   background(255);
+  image(miImagen, 0, 0, 400, 400);
+  pushMatrix();
+  translate(400, 0);
+  dibujarPatron();
+  popMatrix();
+  stroke(0);
+  line(400, 0, 400, 400);
+  noStroke();
+}
 
-  // Muestra la imagen en la mitad izquierda
-  image(imagen, 0, 0, width/2, height);
- 
-  float destinoRadioInterno = map(mouseX, width/2, width, 0.95, 0.1);
-  radioInterno += (destinoRadioInterno - radioInterno) * 0.1;
+void dibujarPatron() {
+  fill(255);
+  noStroke();
+  rect(0, 0, 400, 400); 
 
-  float destinoRadioExterno = map(mouseY, 0, height, 0.5, 1.5);
-  radioExterno += (destinoRadioExterno - radioExterno) * 0.1;
+  float tamCelda = 400.0 / columnas;
 
-  translate(width/2, 0); // Mueve el dibujo a la derecha
+  for (int fila = 0; fila < filas; fila++) {
+    for (int col = 0; col < columnas; col++) {
 
-  for(int columna = 0; columna < cantidadColumnas; columna++){
-    for(int fila = 0; fila < cantidadFilas; fila++){
-      float x = columna * tamañoCelda + tamañoCelda / 2;
-      float y = fila * tamañoCelda + tamañoCelda / 2;
+      float x = col * tamCelda;
+      float y = fila * tamCelda;
 
-      // la distancia al mouse
-      float distancia = dist(mouseX, mouseY, x + width/2, y);
-      float transparencia = map(distancia, 0, 200, 1, 0);
-      transparencia = constrain(transparencia, 0, 1);
+      // distancia del centro de esta celda al mouse
+      float centroX = x + tamCelda / 2;
+      float centroY = y + tamCelda / 2;
+      float mx = mouseX - 400;
+      float my = mouseY;
+      float distancia = calcularDistancia(mx, my, centroX, centroY);
 
-      float tamañoExterno = tamañoCelda * radioExterno * (0.5 + transparencia);
-      float tamañoInterno = tamañoExterno * radioInterno;
+      // cuantos cuadrados dibujar en esta celda
+      int capasCelda = calcularCapas(distancia);
 
-      if(transparencia > 0.05){
-        if(modoColorActivado && estoyEnZonaDerecha(mouseX)){
-          float r = map(x, 0, width/2, 50, 255);
-          float g = map(y, 0, height, 50, 200);
-          float b = map(transparencia, 0, 1, 255, 50);
-          dibujarAnillo(x, y, tamañoExterno, tamañoInterno, 255 * transparencia, r, g, b);
-        } else {
-          dibujarAnillo(x, y, tamañoExterno, tamañoInterno, 255, 0, 0, 0);
-        }
-      }
+      dibujarCelda(x, y, tamCelda, capasCelda, fila, col);
     }
   }
+
+
 }
 
-void keyPressed(){
-  if(key == 'r' || key == 'R'){
-    modoColorActivado = true;
-    radioInterno = 0.95;
-    radioExterno = 1.0;
-  } else if(key == ' '){
-    modoColorActivado = false;
+// Función CON parámetros que SI retorna un valor
+float calcularDistancia(float x1, float y1, float x2, float y2) {
+  return dist(x1, y1, x2, y2);
+}
+
+// Función CON parámetros que SI retorna un valor
+int calcularCapas(float distancia) {
+  int resultado;
+
+  if (distancia < 60) {
+    resultado = int(map(distancia, 0, 60, capas + 4, capas));
+  } else {
+    resultado = capas;
   }
+
+  return resultado;
 }
 
-//anillo con dos elipses: una exterior y una interior blanca
-void dibujarAnillo(float x, float y, float tamañoExterno, float tamañoInterno, float alfa, float r, float g, float b){
-  noStroke();
-  fill(r, g, b, alfa);
-  ellipse(x, y, tamañoExterno, tamañoExterno);
-  fill(255, alfa);
-  ellipse(x, y, tamañoInterno, tamañoInterno);
+// Función CON parámetros que NO retorna valor
+
+void dibujarCelda(float x, float y, float tam, int numCapas, int fila, int col) {
+  pushMatrix();
+  translate(x + tam / 2, y + tam / 2);
+  rotate(rotacionGlobal);
+  translate(-tam / 2, -tam / 2);
+
+  strokeWeight(3);
+  noFill();
+
+  // FOR que dibuja los cuadrados concéntricos, del mas chico al mas grande
+  for (int k = 0; k < numCapas; k++) {
+
+    if (modoColor) {
+      stroke(random(255), random(255), random(255));
+    } else {
+      stroke(0);
+    }
+
+    float fraccion = map(k, 0, numCapas - 1, 0.5, 1.0);
+    float s = tam * fraccion;
+    rect(0, 0, s, s);
+  }
+
+  popMatrix();
 }
 
-// Devuelve true si el mouse está en la mitad derecha
-boolean estoyEnZonaDerecha(float posicionMouseX){
-  return posicionMouseX > width / 2;
+// Reinicia todas las variables a su estado original
+void reiniciar() {
+  capas = capasOriginal;
+  rotacionGlobal = rotacionGlobalOriginal;
+  modoColor = modoColorOriginal;
+}
+
+// Click alterna entre patron en blanco y negro (original)o con colores
+void mousePressed() {
+  modoColor = !modoColor;
+}
+
+// Arrastrar el mouse rota todo el patron
+void mouseDragged() {
+  rotacionGlobal = map(mouseX, 400, 800, -PI, PI);
+}
+
+void keyPressed() {
+  if (key == 'r' || key == 'R') {
+    reiniciar();
+
+  }
 }
